@@ -39,10 +39,10 @@ class EncryptedFile {
         const header = [
             '-----',
             this.HEADER_IDENTIFIER,
-            params.version,
-            params.encryptionKeyId,
-            params.cipher,
-            params.date,
+            params.version.value,
+            params.encryptionKeyId.value,
+            params.cipher.value,
+            params.date.value,
             '-----'
         ].join('\n');
         return header + '\n' + content;
@@ -74,14 +74,42 @@ class EncryptedFile {
     }
 }
 
+class Version {
+    value: string;
+    constructor(value: string) {
+        this.value = value;
+    }
+}
+
+class EncryptionKeyId {
+    value: string;
+    constructor(value: string) {
+        this.value = value;
+    }
+}
+
+class Cipher {
+    value: string;
+    constructor(value: string) {
+        this.value = value;
+    }
+}
+
+class DateString {
+    value: Date;
+    constructor(value: Date) {
+        this.value = value;
+    }
+}
+
 class HeaderParams {
-    version: string;
-    encryptionKeyId: string;
-    cipher: string;
-    date: string;
+    version: Version;
+    encryptionKeyId: EncryptionKeyId;
+    cipher: Cipher;
+    date: DateString;
     content: string;
 
-    constructor(version: string, encryptionKeyId: string, cipher: string, date: string, content: string) {
+    constructor(version: Version, encryptionKeyId: EncryptionKeyId, cipher: Cipher, date: DateString, content: string) {
         this.version = version;
         this.encryptionKeyId = encryptionKeyId;
         this.cipher = cipher;
@@ -94,10 +122,16 @@ class HeaderParams {
 const version = '1.0.0';
 const encryptionKeyId = 'key123';
 const cipher = 'aes-256-cbc';
-const date = '2023-10-01';
+const date = new Date('2023-10-01');
 const content = 'This is the encrypted content.';
 
-const headerParams = new HeaderParams(version, encryptionKeyId, cipher, date, content);
+const headerParams = 
+    new HeaderParams(
+        new Version(version),
+        new EncryptionKeyId(encryptionKeyId),
+        new Cipher(cipher),
+        new DateString(new Date(date)),
+        content);
 const encryptedContent = EncryptedFile.writeHeader(headerParams);
 console.log(encryptedContent);
 /*
