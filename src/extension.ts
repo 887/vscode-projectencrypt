@@ -5,6 +5,10 @@ import * as encrypted from './encrypted_file';
 
 //https://code.visualstudio.com/api/references/activation-events#onStartupFinished
 
+//todo: 
+//use bcrypt for the master password, save the bcrypt params in the settings
+//https://en.wikipedia.org/wiki/Bcrypt
+
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)

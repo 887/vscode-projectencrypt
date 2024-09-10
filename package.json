@@ -39,14 +39,19 @@
         },
         "vscode-projectencrypt.masterPassword": {
           "type": "string",
-          "default": "",
+          "default": null,
           "description": "Master password"
         },
-        "vscode-projectencrypt.masterPasswordCipherIdentifier": {
+        "vscode-projectencrypt.masterPasswordHashSalt": {
           "type": "string",
-          "default": "aes-256-cbc",
-          "description": "Master password cipher identifier",
-          "enum": ["aes-256-cbc", "aes-128-cbc"]
+          "default": "R9h/cIPz0gi.UN..X3kh2O",
+          "description": "Master password 22 character hash salt"
+        },
+        "vscode-projectencrypt.masterPasswordHashSettings": {
+          "type": "string",
+          "default": "$2a$12$",
+          "description": "Master password hash settings https://en.wikipedia.org/wiki/Bcrypt",
+          "enum": ["$2a$12$"]
         },
         "vscode-projectencrypt.keyValuePairs": {
           "type": "object",
@@ -61,6 +66,12 @@
                 "type": "boolean",
                 "default": true,
                 "description": "Indicates if the value is encrypted with the master password"
+              },
+              "encryptedWithCipher": {
+                "type": "string",
+                "default": "aes-256-cbc",
+                "description": "Cipher this value was encrypted with",
+                "enum": ["aes-256-cbc", "aes-128-cbc"]
               }
             }
           }
