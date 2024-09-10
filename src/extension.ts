@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vscode-projectencrypt.helloWorld', () => {
+	const disposable = vscode.commands.registerCommand('vscode-projectencrypt.createHeader', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from vscode ProjectEncrypt!');
@@ -49,7 +49,51 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(documentDidSaveListener);
 
-	
+	// Create a configuration section for the extension
+	const config = vscode.workspace.getConfiguration('vscode-projectencrypt');
+
+	// Function to update the configuration
+	function updateConfig(key: string, value: any) {
+		config.update(key, value, vscode.ConfigurationTarget.Global)
+			.then(() => {
+				vscode.window.showInformationMessage(`Configuration updated: ${key} = ${value}`);
+			}, (error) => {
+				vscode.window.showErrorMessage(`Error updating configuration: ${error}`);
+			});
+	}
+
+	function validateKeyValuePairs() {
+		const config = vscode.workspace.getConfiguration('vscode-projectencrypt');
+		const keys = Object.keys(config);
+		for (const key of keys) {
+			const value = config.get(key);
+			// Add your validation logic here
+			if (typeof value !== 'string' || value.trim() === '') {
+				vscode.window.showErrorMessage(`Invalid configuration: ${key} must be a non-empty string`);
+				return false;
+			}
+		}
+		vscode.window.showInformationMessage('All configuration key-value pairs are valid.');
+		return true;
+	}
+
+	// Register the onSave method
+	vscode.workspace.onWillSaveTextDocument((event) => {
+		if (!validateKeyValuePairs()) {
+			event.waitUntil(Promise.reject(new Error('Invalid configuration key-value pairs')));
+		}
+	});
+
+	// Example usage: update a configuration setting
+	updateConfig('exampleKey', 'exampleValue');
+
+	// Register configuration settings
+	vscode.workspace.onDidChangeConfiguration((event) => {
+		if (event.affectsConfiguration('vscode-projectencrypt')) {
+			const updatedConfig = vscode.workspace.getConfiguration('vscode-projectencrypt');
+			vscode.window.showInformationMessage(`Configuration changed: ${JSON.stringify(updatedConfig)}`);
+		}
+	});
 }
 
 // This method is called when your extension is deactivated

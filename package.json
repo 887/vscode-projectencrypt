@@ -16,10 +16,42 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-projectencrypt.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-projectencrypt.createHeader",
+        "title": "Project Encrypt: Create Header"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Project Encrypt",
+      "properties": {
+        "vscode-projectencrypt.rememberMasterPassword": {
+          "type": "boolean",
+          "default": true,
+          "description": "Remember the master password\nOtherwise you will be asked first time you need it and it's saved in vscode during runtime"
+        },
+        "vscode-projectencrypt.masterPassword": {
+          "type": "string",
+          "default": "",
+          "description": "Master password"
+        },
+        "vscode-projectencrypt.masterPasswordCipherIdentifier": {
+          "type": "string",
+          "default": "aes-256-cbc",
+          "description": "Master password cipher identifier",
+          "enum": ["aes-256-cbc", "aes-128-cbc"]
+        },
+        "vscode-projectencrypt.keyValuePairs": {
+          "type": "object",
+          "description": "Key-value pairs for the extension settings",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "scope": "application",
+          "onSave": "vscode-projectencrypt.validateKeyValuePairs"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
