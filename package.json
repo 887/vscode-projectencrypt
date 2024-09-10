@@ -18,6 +18,14 @@
       {
         "command": "vscode-projectencrypt.createHeader",
         "title": "Project Encrypt: Create Header"
+      },
+      {
+        "command": "vscode-projectencrypt.createEncryptionKey",
+        "title": "Project Encrypt: Create Encryption Key"
+      },
+      {
+        "command": "vscode-projectencrypt.displayEncryptionKey",
+        "title": "Project Encrypt: Display Encryption Key"
       }
     ],
     "configuration": {
@@ -44,11 +52,18 @@
           "type": "object",
           "description": "Key-value pairs for the extension settings",
           "additionalProperties": {
-            "type": "string"
-          },
-          "default": {},
-          "scope": "application",
-          "onSave": "vscode-projectencrypt.validateKeyValuePairs"
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "encryptedWithMasterPassword": {
+                "type": "boolean",
+                "default": true,
+                "description": "Indicates if the value is encrypted with the master password"
+              }
+            }
+          }
         }
       }
     }

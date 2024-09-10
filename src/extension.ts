@@ -7,7 +7,6 @@ import * as encrypted from './encrypted_file';
 
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
-
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "vscode-projectencrypt" is now active!');
@@ -15,13 +14,28 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vscode-projectencrypt.createHeader', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
+
+	// Command to create a header
+	const createHeaderDisposable = vscode.commands.registerCommand('vscode-projectencrypt.createHeader', () => {
 		vscode.window.showInformationMessage('Hello World from vscode ProjectEncrypt!');
 	});
+	context.subscriptions.push(createHeaderDisposable);
 
-	context.subscriptions.push(disposable);
+	// Command to create an encryption key
+	const createEncryptionKeyDisposable = vscode.commands.registerCommand('vscode-projectencrypt.createEncryptionKey', () => {
+		// The code you place here will be executed every time your command is executed
+		// Display a message box to the user
+		vscode.window.showInformationMessage('Encryption Key Created!');
+	});
+	context.subscriptions.push(createEncryptionKeyDisposable);
+
+	// Command to display the encryption key
+	const displayEncryptionKeyDisposable = vscode.commands.registerCommand('vscode-projectencrypt.displayEncryptionKey', () => {
+		// The code you place here will be executed every time your command is executed
+		// Display a message box to the user
+		vscode.window.showInformationMessage('Encryption Key: [Your Key Here]');
+	});
+	context.subscriptions.push(displayEncryptionKeyDisposable);
 
 	// Register an event listener for when an editor is opened
 	const editorOpenListener = vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -74,6 +88,59 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 		vscode.window.showInformationMessage('All configuration key-value pairs are valid.');
+		return true;
+	}
+
+	function editKeyValuePairs() {
+		const config = vscode.workspace.getConfiguration('vscode-projectencrypt');
+		const keys = Object.keys(config);
+		for (const key of keys) {
+			const value = config.get(key);
+			// Add your validation logic here
+			if (typeof value !== 'string' || value.trim() === '') {
+				vscode.window.showErrorMessage(`Invalid configuration: ${key} must be a non-empty string`);
+				return false;
+			}
+		}
+		vscode.window.showInformationMessage('All configuration key-value pairs are valid.');
+		return true;
+	}
+
+	// Register the onSave method
+	vscode.workspace.onWillSaveTextDocument((event) => {
+		if (!validateKeyValuePairs()) {
+			event.waitUntil(Promise.reject(new Error('Invalid configuration key-value pairs')));
+		}
+	});
+
+	// Register the onEdit method
+	vscode.workspace.onDidChangeTextDocument((event) => {
+		if (!editKeyValuePairs()) {
+			vscode.window.showErrorMessage('Invalid configuration key-value pairs');
+		}
+	});
+
+	// Register the beforeEdit method
+	vscode.workspace.onWillSaveTextDocument((event) => {
+		if (!modifyKeyValuePairsBeforeEdit()) {
+			event.waitUntil(Promise.reject(new Error('Invalid configuration key-value pairs before edit')));
+		}
+	});
+
+	function modifyKeyValuePairsBeforeEdit() {
+		const config = vscode.workspace.getConfiguration('vscode-projectencrypt');
+		const keys = Object.keys(config);
+		for (const key of keys) {
+			const value = config.get(key);
+			// Add your modification logic here
+			if (typeof value !== 'string' || value.trim() === '') {
+				vscode.window.showErrorMessage(`Invalid configuration: ${key} must be a non-empty string`);
+				return false;
+			}
+			// Example modification: append a suffix to each value
+			config.update(key, `${value}_modified`, vscode.ConfigurationTarget.Global);
+		}
+		vscode.window.showInformationMessage('Configuration key-value pairs modified before edit.');
 		return true;
 	}
 
