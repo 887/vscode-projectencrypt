@@ -19,21 +19,32 @@ class EncryptedFile {
             line2 === this.HEADER_IDENTIFIER &&
             this.isValidSemver(line3) &&
             this.isValidEncryptionKeyId(line4) &&
-            this.isValidDate(line5) &&
-            line6 === '-----'
+            this.isValidCipher(line5) &&
+            this.isValidDate(line6) &&
+            line7 === '-----'
         );
     }
 
     /**
      * Writes the header with the specified format.
-     * @param version - The semver version.
-     * @param encryptionKeyId - The encryption key ID.
-     * @param date - The date in YYYY-MM-DD format.
-     * @param content - The content to append after the header.
+     * @param params - An object containing the header parameters.
+     * @param params.version - The semver version.
+     * @param params.encryptionKeyId - The encryption key ID.
+     * @param params.cipher - The cipher used for encryption.
+     * @param params.date - The date in YYYY-MM-DD format.
+     * @param params.content - The content to append after the header.
      * @returns The content with the header prepended.
      */
-    public static writeHeader(version: string, encryptionKeyId: string, date: string, content: string): string {
-        const header = `-----\n${this.HEADER_IDENTIFIER}\n${version}\n${encryptionKeyId}\n${date}\n-----\n`;
+    public static writeHeader(params: HeaderParams): string {
+        const header = [
+            '-----',
+            this.HEADER_IDENTIFIER,
+            params.version,
+            params.encryptionKeyId,
+            params.cipher,
+            params.date,
+            '-----'
+        ].join('\n');
         return header + '\n' + content;
     }
 
@@ -51,15 +62,43 @@ class EncryptedFile {
         const datePattern = /^\d{4}-\d{2}-\d{2}$/;
         return datePattern.test(date);
     }
+
+    private static isValidCipher(cipher: string): boolean {
+        switch (cipher) {
+            case 'aes-256-cbc':
+            case 'aes-128-cbc':
+                return true;
+            default:
+                return false;
+        }
+    }
+}
+
+class HeaderParams {
+    version: string;
+    encryptionKeyId: string;
+    cipher: string;
+    date: string;
+    content: string;
+
+    constructor(version: string, encryptionKeyId: string, cipher: string, date: string, content: string) {
+        this.version = version;
+        this.encryptionKeyId = encryptionKeyId;
+        this.cipher = cipher;
+        this.date = date;
+        this.content = content;
+    }
 }
 
 // Example usage:
 const version = '1.0.0';
 const encryptionKeyId = 'key123';
+const cipher = 'aes-256-cbc';
 const date = '2023-10-01';
 const content = 'This is the encrypted content.';
 
-const encryptedContent = EncryptedFile.writeHeader(version, encryptionKeyId, date, content);
+const headerParams = new HeaderParams(version, encryptionKeyId, cipher, date, content);
+const encryptedContent = EncryptedFile.writeHeader(headerParams);
 console.log(encryptedContent);
 /*
 Expected output:
